@@ -1,0 +1,49 @@
+<div class="page-content-inner">
+  <div class="page-top">
+    <div><h1>Recurring Transactions</h1><p>Manage automated recurring rules</p></div>
+    <button class="btn btn-primary" (click)="modal.open('addRecurring')">+ Add Recurring</button>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Active Expense Rules</span></div>
+      <div class="card-body">
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:var(--primary-light)">🏠</div><div><div style="font-size:13.5px;font-weight:500">Rent</div><div style="font-size:12px;color:var(--text-muted)">Monthly · Next: Apr 28</div></div></div><div style="text-align:right"><div class="amount expense" style="font-family:'Space Grotesk';font-weight:600">-$1,200</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Pause</button></div></div>
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:#FEF3C7">📱</div><div><div style="font-size:13.5px;font-weight:500">Phone Bill</div><div style="font-size:12px;color:var(--text-muted)">Monthly · Next: Apr 22</div></div></div><div style="text-align:right"><div class="amount expense" style="font-family:'Space Grotesk';font-weight:600">-$45</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Pause</button></div></div>
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:#DBEAFE">🎵</div><div><div style="font-size:13.5px;font-weight:500">Spotify</div><div style="font-size:12px;color:var(--text-muted)">Monthly · Next: Apr 20</div></div></div><div style="text-align:right"><div class="amount expense" style="font-family:'Space Grotesk';font-weight:600">-$9.99</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Pause</button></div></div>
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:#FCE7F3">🔐</div><div><div style="font-size:13.5px;font-weight:500">Insurance Premium</div><div style="font-size:12px;color:var(--text-muted)">Quarterly · Next: Jun 1</div></div></div><div style="text-align:right"><div class="amount expense" style="font-family:'Space Grotesk';font-weight:600">-$320</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Pause</button></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Active Income Rules</span></div>
+      <div class="card-body">
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:var(--primary-light)">💼</div><div><div style="font-size:13.5px;font-weight:500">Monthly Salary</div><div style="font-size:12px;color:var(--text-muted)">Monthly · Next: May 1</div></div></div><div style="text-align:right"><div class="amount income" style="font-family:'Space Grotesk';font-weight:600">+$5,500</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Edit</button></div></div>
+        <div class="recur-item"><div style="display:flex;align-items:center;gap:12px"><div class="recur-icon" style="background:var(--accent-light)">📈</div><div><div style="font-size:13.5px;font-weight:500">Investment Dividend</div><div style="font-size:12px;color:var(--text-muted)">Quarterly · Next: Jul 1</div></div></div><div style="text-align:right"><div class="amount income" style="font-family:'Space Grotesk';font-weight:600">+$380</div><button class="btn btn-outline btn-sm" style="margin-top:4px">Edit</button></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Recurring Modal -->
+<div class="modal-overlay" [class.open]="modal.isOpen('addRecurring')" (click)="modal.close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">Add Recurring Rule</span><button class="modal-close" (click)="modal.close()">✕</button></div>
+    <div class="form-group"><label class="form-label">Title</label><input class="form-control" placeholder="e.g. Netflix Subscription"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-control" type="number"/></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-control"><option>Expense</option><option>Income</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Frequency</label><select class="form-control"><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Quarterly</option><option>Yearly</option></select></div>
+      <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>Food</option><option>Bills</option><option>Entertainment</option><option>Transport</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Start Date</label><input class="form-control" type="date" value="2026-04-16"/></div>
+      <div class="form-group"><label class="form-label">End Date (optional)</label><input class="form-control" type="date"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" (click)="modal.close()">Cancel</button>
+      <button class="btn btn-primary" (click)="modal.close()">Create Rule</button>
+    </div>
+  </div>
+</div>

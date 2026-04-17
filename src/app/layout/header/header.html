@@ -1,0 +1,47 @@
+<header class="header">
+  <div class="header-title">{{ pageTitle }}</div>
+  <div class="header-actions">
+    <select class="filter-select" style="font-size:13px">
+      <option>April 2026</option>
+      <option>March 2026</option>
+      <option>February 2026</option>
+      <option>January 2026</option>
+    </select>
+    <button class="header-btn" (click)="openNotif()">🔔 <span class="badge">3</span></button>
+    <button class="header-btn primary">+ Add Expense</button>
+  </div>
+</header>
+
+<!-- Notifications Modal -->
+<div class="modal-overlay" [class.open]="showNotifModal" (click)="closeNotif()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <span class="modal-title">Notifications</span>
+      <button class="modal-close" (click)="closeNotif()">✕</button>
+    </div>
+    <div class="notif-item">
+      <div class="notif-dot danger"></div>
+      <div>
+        <div class="notif-title">🛍️ Shopping budget exceeded</div>
+        <div class="notif-body">113% of $600 limit spent this month.</div>
+        <div class="notif-time">2 hours ago</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-dot warn"></div>
+      <div>
+        <div class="notif-title">⚠️ Food budget at 84%</div>
+        <div class="notif-body">Alert threshold crossed.</div>
+        <div class="notif-time">1 day ago</div>
+      </div>
+    </div>
+    <div class="notif-item">
+      <div class="notif-dot info"></div>
+      <div>
+        <div class="notif-title">🔄 Rent due in 3 days</div>
+        <div class="notif-body">$1,200 due April 28.</div>
+        <div class="notif-time">3 days ago</div>
+      </div>
+    </div>
+  </div>
+</div>

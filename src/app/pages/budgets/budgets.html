@@ -1,0 +1,68 @@
+<div class="page-content-inner">
+  <div class="page-top">
+    <div><h1>Budgets</h1><p>Set and track spending limits per category</p></div>
+    <button class="btn btn-primary" (click)="modal.open('addBudget')">+ Create Budget</button>
+  </div>
+
+  <div class="stats-grid" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">Total Budget</div><div class="stat-value">$2,550</div></div>
+    <div class="stat-card"><div class="stat-label">Total Spent</div><div class="stat-value red">$2,247</div></div>
+    <div class="stat-card"><div class="stat-label">Remaining</div><div class="stat-value green">$303</div></div>
+    <div class="stat-card"><div class="stat-label">Budgets Exceeded</div><div class="stat-value red">1</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><span class="card-title">All Budgets — April 2026</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+        <div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">🍔 Food</span><span style="font-size:12px;color:var(--warn);font-weight:500">⚠️ 84%</span><span class="budget-amounts">$420 / $500</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar warn" style="width:84%"></div></div>
+          </div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">🚗 Transport</span><span style="font-size:12px;color:var(--primary-dark);font-weight:500">60%</span><span class="budget-amounts">$180 / $300</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar ok" style="width:60%"></div></div>
+          </div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">🛍️ Shopping</span><span style="font-size:12px;color:var(--danger);font-weight:500">⛔ 113%</span><span class="budget-amounts">$680 / $600</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar danger" style="width:100%"></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">💡 Bills</span><span style="font-size:12px;color:var(--primary-dark);font-weight:500">91%</span><span class="budget-amounts">$730 / $800</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar ok" style="width:91%"></div></div>
+          </div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">💊 Health</span><span style="font-size:12px;color:var(--primary-dark);font-weight:500">47%</span><span class="budget-amounts">$95 / $200</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar ok" style="width:47%"></div></div>
+          </div>
+          <div class="budget-item">
+            <div class="budget-row"><span class="budget-name">🎬 Entertainment</span><span style="font-size:12px;color:var(--warn);font-weight:500">⚠️ 94%</span><span class="budget-amounts">$142 / $150</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar warn" style="width:94%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Budget Modal -->
+<div class="modal-overlay" [class.open]="modal.isOpen('addBudget')" (click)="modal.close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header"><span class="modal-title">Create Budget</span><button class="modal-close" (click)="modal.close()">✕</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Health</option><option>Entertainment</option></select></div>
+      <div class="form-group"><label class="form-label">Period</label><select class="form-control"><option>Monthly</option><option>Weekly</option><option>Custom</option></select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Limit Amount ($)</label><input class="form-control" type="number" placeholder="500"/></div>
+      <div class="form-group"><label class="form-label">Alert at (%)</label><input class="form-control" type="number" placeholder="80" value="80"/></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-outline" (click)="modal.close()">Cancel</button>
+      <button class="btn btn-primary" (click)="modal.close()">Create Budget</button>
+    </div>
+  </div>
+</div>
