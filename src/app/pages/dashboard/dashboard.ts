@@ -4,7 +4,6 @@ import { RouterLink } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Budget, BudgetProgress, Category, Expense, Income, RecurringTransaction } from '../../core/models/api.models';
-import { AnalyticsApiService } from '../../core/services/analytics-api.service';
 import { BudgetsApiService } from '../../core/services/budgets-api.service';
 import { CategoriesApiService } from '../../core/services/categories-api.service';
 import { ExpensesApiService } from '../../core/services/expenses-api.service';
@@ -34,7 +33,6 @@ export class DashboardComponent implements AfterViewInit {
   private readonly budgetsApi = inject(BudgetsApiService);
   private readonly recurringApi = inject(RecurringApiService);
   private readonly notificationsApi = inject(NotificationsApiService);
-  private readonly analyticsApi = inject(AnalyticsApiService);
 
   loading = true;
   errorMessage = '';
@@ -85,15 +83,13 @@ export class DashboardComponent implements AfterViewInit {
       recurring: this.recurringApi.listActive(userId).pipe(catchError(() => of([] as RecurringTransaction[]))),
       notifications: this.notificationsApi.listByRecipient(userId).pipe(catchError(() => of([]))),
       trends: forkJoin(monthRequests),
-      health: this.analyticsApi.health(userId).pipe(catchError(() => of(null)))
     }).subscribe({
-      next: ({ currentIncome, currentExpense, categories, budgets, recurring, trends, health }) => {
+      next: ({ currentIncome, currentExpense, categories, budgets, recurring, trends }) => {
         this.totalIncome = currentIncome.reduce((sum, item) => sum + item.amount, 0);
         this.totalExpense = currentExpense.reduce((sum, item) => sum + item.amount, 0);
         this.netSavings = this.totalIncome - this.totalExpense;
         this.savingsRate = this.totalIncome ? (this.netSavings / this.totalIncome) * 100 : 0;
         this.expenseIncomeRatio = this.totalIncome ? this.totalExpense / this.totalIncome : 0;
-        this.healthScore = health ?? this.computeHealthScore();
         this.recentTransactions = toTimelineTransactions(currentExpense, currentIncome, categories).slice(0, 5);
         this.categoryBreakdown = buildCategoryBreakdown(currentExpense, categories).slice(0, 6);
         this.recurringItems = recurring.slice(0, 5);
@@ -116,6 +112,7 @@ export class DashboardComponent implements AfterViewInit {
     if (!budgets.length) {
       this.budgetSummary = [];
       this.budgetAdherence = 100;
+      this.healthScore = this.computeHealthScore();
       this.loading = false;
       this.renderCharts();
       return;
@@ -135,6 +132,7 @@ export class DashboardComponent implements AfterViewInit {
         this.budgetAdherence = progress.length
           ? progress.reduce((sum, item) => sum + Math.max(0, 100 - Math.max(0, item.percentageUsed - 100)), 0) / progress.length
           : 100;
+        this.healthScore = this.computeHealthScore();
       },
       complete: () => {
         this.loading = false;
@@ -174,6 +172,10 @@ export class DashboardComponent implements AfterViewInit {
   }
 
   private computeHealthScore(): number {
+    if (!this.totalIncome && !this.totalExpense) {
+      return 0;
+    }
+
     const savingsScore = Math.max(0, Math.min(100, this.savingsRate * 2));
     const budgetScore = Math.max(0, Math.min(100, this.budgetAdherence));
     const ratioScore = Math.max(0, Math.min(100, 100 - this.expenseIncomeRatio * 100));
