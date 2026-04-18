@@ -1,166 +1,26 @@
 <div class="page-content-inner">
-  <!-- Stats -->
+  @if (errorMessage) {
+    <div class="card" style="padding:14px;color:var(--danger);margin-bottom:16px">{{ errorMessage }}</div>
+  }
   <div class="stats-grid">
-    <div class="stat-card income">
-      <div class="stat-label">Total Income</div>
-      <div class="stat-value green">$8,450</div>
-      <div class="stat-delta"><span class="up">↑ 12.4%</span> vs last month</div>
-    </div>
-    <div class="stat-card expense">
-      <div class="stat-label">Total Expenses</div>
-      <div class="stat-value red">$5,230</div>
-      <div class="stat-delta"><span class="down">↑ 3.8%</span> vs last month</div>
-    </div>
-    <div class="stat-card savings">
-      <div class="stat-label">Net Savings</div>
-      <div class="stat-value">$3,220</div>
-      <div class="stat-delta">Savings rate: <span class="up">38.1%</span></div>
-    </div>
-    <div class="stat-card health">
-      <div class="stat-label">Health Score</div>
-      <div class="stat-value" style="color:var(--purple)">74/100</div>
-      <div class="stat-delta">Budget adherence: <span class="up">82%</span></div>
-    </div>
+    <div class="stat-card income"><div class="stat-label">Total Income</div><div class="stat-value green">{{ formatAmount(totalIncome) }}</div><div class="stat-delta">Current month</div></div>
+    <div class="stat-card expense"><div class="stat-label">Total Expenses</div><div class="stat-value red">{{ formatAmount(totalExpense) }}</div><div class="stat-delta">Current month</div></div>
+    <div class="stat-card savings"><div class="stat-label">Net Savings</div><div class="stat-value">{{ formatAmount(netSavings) }}</div><div class="stat-delta">Savings rate: <span class="up">{{ savingsRate | number:'1.1-1' }}%</span></div></div>
+    <div class="stat-card health"><div class="stat-label">Health Score</div><div class="stat-value" style="color:var(--purple)">{{ healthScore }}/100</div><div class="stat-delta">Budget adherence: <span class="up">{{ budgetAdherence | number:'1.0-0' }}%</span></div></div>
   </div>
 
   <div class="grid-3">
-    <!-- Income vs Expense Chart -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Income vs Expenses — Last 6 Months</span>
-      </div>
-      <div class="card-body" style="padding-bottom:12px">
-        <div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-muted)">
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block"></span>Income</span>
-          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#E24B4A;display:inline-block"></span>Expenses</span>
-        </div>
-        <div style="height:220px;position:relative">
-          <canvas id="incomeExpenseChart"></canvas>
-        </div>
-      </div>
-    </div>
-    <!-- Budget Overview -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Budget Progress</span>
-        <a class="btn btn-outline btn-sm" routerLink="/app/budgets">View All</a>
-      </div>
-      <div class="card-body">
-        <div class="budget-item">
-          <div class="budget-row"><span class="budget-name">🍔 Food</span><span class="budget-amounts">$420 / $500</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar warn" style="width:84%"></div></div>
-        </div>
-        <div class="budget-item">
-          <div class="budget-row"><span class="budget-name">🚗 Transport</span><span class="budget-amounts">$180 / $300</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar ok" style="width:60%"></div></div>
-        </div>
-        <div class="budget-item">
-          <div class="budget-row"><span class="budget-name">🛍️ Shopping</span><span class="budget-amounts">$680 / $600</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar danger" style="width:100%"></div></div>
-        </div>
-        <div class="budget-item">
-          <div class="budget-row"><span class="budget-name">💊 Health</span><span class="budget-amounts">$95 / $200</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar ok" style="width:47%"></div></div>
-        </div>
-        <div class="budget-item">
-          <div class="budget-row"><span class="budget-name">🎬 Entertainment</span><span class="budget-amounts">$142 / $150</span></div>
-          <div class="progress-bar-bg"><div class="progress-bar warn" style="width:94%"></div></div>
-        </div>
-      </div>
-    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Income vs Expenses - Last 6 Months</span></div><div class="card-body" style="padding-bottom:12px"><div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--text-muted)"><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block"></span>Income</span><span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:#E24B4A;display:inline-block"></span>Expenses</span></div><div style="height:220px;position:relative"><canvas id="incomeExpenseChart"></canvas></div></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Budget Progress</span><a class="btn btn-outline btn-sm" routerLink="/app/budgets">View All</a></div><div class="card-body">@for (budget of budgetSummary; track budget.name) {<div class="budget-item"><div class="budget-row"><span class="budget-name">{{ budget.name }}</span><span class="budget-amounts">{{ formatAmount(budget.spent) }} / {{ formatAmount(budget.limit) }}</span></div><div class="progress-bar-bg"><div class="progress-bar" [class.warn]="budget.progress >= 80 && budget.progress < 100" [class.danger]="budget.progress >= 100" [class.ok]="budget.progress < 80" [style.width.%]="budget.progress"></div></div></div>} @if (!budgetSummary.length) {<div style="color:var(--text-muted)">No active budgets yet.</div>}</div></div>
   </div>
 
   <div class="grid-2">
-    <!-- Pie Chart -->
-    <div class="card">
-      <div class="card-header"><span class="card-title">Expense by Category</span></div>
-      <div class="card-body">
-        <div style="display:flex;align-items:center;gap:24px">
-          <div style="height:200px;position:relative;flex:1">
-            <canvas id="pieChart"></canvas>
-          </div>
-          <div style="font-size:12px;color:var(--text-muted);min-width:120px">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#1D9E75;display:inline-block"></span>Food 32%</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#378ADD;display:inline-block"></span>Shopping 20%</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#D4537E;display:inline-block"></span>Transport 14%</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#EF9F27;display:inline-block"></span>Bills 18%</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#7F77DD;display:inline-block"></span>Health 10%</div>
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;background:#888780;display:inline-block"></span>Entertainment 6%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Recent Transactions -->
-    <div class="card">
-      <div class="card-header">
-        <span class="card-title">Recent Transactions</span>
-        <a class="btn btn-outline btn-sm" routerLink="/app/expenses">View All</a>
-      </div>
-      <div class="card-body" style="padding:0">
-        <table class="data-table">
-          <thead><tr><th>Description</th><th>Category</th><th>Amount</th></tr></thead>
-          <tbody>
-            <tr><td>Grocery Store</td><td><span class="pill food">Food</span></td><td class="amount expense">-$68.50</td></tr>
-            <tr><td>Freelance Payment</td><td><span class="pill salary">Income</span></td><td class="amount income">+$1,200</td></tr>
-            <tr><td>Uber Ride</td><td><span class="pill transport">Transport</span></td><td class="amount expense">-$14.00</td></tr>
-            <tr><td>Netflix</td><td><span class="pill other">Entertainment</span></td><td class="amount expense">-$15.99</td></tr>
-            <tr><td>Amazon</td><td><span class="pill shopping">Shopping</span></td><td class="amount expense">-$89.00</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Expense by Category</span></div><div class="card-body"><div style="display:flex;align-items:center;gap:24px"><div style="height:200px;position:relative;flex:1"><canvas id="pieChart"></canvas></div><div style="font-size:12px;color:var(--text-muted);min-width:120px">@for (item of categoryBreakdown; track item.label) {<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px"><span style="width:10px;height:10px;border-radius:2px;display:inline-block" [style.background]="item.color"></span>{{ item.label }} {{ formatAmount(item.amount) }}</div>}</div></div></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Recent Transactions</span><a class="btn btn-outline btn-sm" routerLink="/app/expenses">View All</a></div><div class="card-body" style="padding:0"><table class="data-table"><thead><tr><th>Description</th><th>Category</th><th>Amount</th></tr></thead><tbody>@for (transaction of recentTransactions; track transaction.id) {<tr><td>{{ transaction.title }}</td><td><span class="pill other">{{ transaction.categoryLabel }}</span></td><td class="amount" [class.expense]="transaction.transactionType === 'expense'" [class.income]="transaction.transactionType === 'income'">{{ transaction.transactionType === 'expense' ? '-' : '+' }}{{ formatAmount(transaction.amount) }}</td></tr>}</tbody></table></div></div>
   </div>
 
-  <!-- Upcoming Recurring + Spending Forecast -->
   <div class="grid-2">
-    <div class="card">
-      <div class="card-header"><span class="card-title">Upcoming Recurring (This Month)</span></div>
-      <div class="card-body">
-        <div class="upcoming-item"><span>🏠 Rent</span><span style="color:var(--text-muted);font-size:12px">Apr 28</span><span class="amount expense" style="font-family:'Space Grotesk',sans-serif;font-weight:600">-$1,200</span></div>
-        <div class="upcoming-item"><span>💡 Electricity</span><span style="color:var(--text-muted);font-size:12px">Apr 25</span><span class="amount expense" style="font-family:'Space Grotesk',sans-serif;font-weight:600">-$85</span></div>
-        <div class="upcoming-item"><span>📱 Phone Bill</span><span style="color:var(--text-muted);font-size:12px">Apr 22</span><span class="amount expense" style="font-family:'Space Grotesk',sans-serif;font-weight:600">-$45</span></div>
-        <div class="upcoming-item"><span>🎵 Spotify</span><span style="color:var(--text-muted);font-size:12px">Apr 20</span><span class="amount expense" style="font-family:'Space Grotesk',sans-serif;font-weight:600">-$9.99</span></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-header"><span class="card-title">Spending Forecast &amp; Health Score</span></div>
-      <div class="card-body">
-        <div style="background:var(--primary-light);border-radius:10px;padding:14px;margin-bottom:16px">
-          <div style="font-size:12px;color:var(--primary-dark);font-weight:500;margin-bottom:4px">Next Month Forecast</div>
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--primary-dark)">$5,480</div>
-          <div style="font-size:12px;color:var(--primary-dark);opacity:.7">Based on 3-month trailing average</div>
-        </div>
-        <div class="fh-row"><span class="fh-label">Savings Rate</span><span class="fh-score" style="color:var(--primary-dark)">38.1%</span></div>
-        <div class="fh-row"><span class="fh-label">Budget Adherence</span><span class="fh-score" style="color:var(--warn)">82%</span></div>
-        <div class="fh-row"><span class="fh-label">Expense/Income Ratio</span><span class="fh-score" style="color:var(--primary-dark)">0.62</span></div>
-        <div class="fh-row"><span class="fh-label">Overall Health Score</span><span class="fh-score" style="color:var(--purple);font-size:16px">74/100</span></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Add Expense Modal -->
-<div class="modal-overlay" [class.open]="modal.isOpen('addExpense')" (click)="modal.close()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header"><span class="modal-title">Add Expense</span><button class="modal-close" (click)="modal.close()">✕</button></div>
-    <div class="form-group"><label class="form-label">Title</label><input class="form-control" placeholder="e.g. Grocery Store"/></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Amount ($)</label><input class="form-control" type="number" placeholder="0.00"/></div>
-      <div class="form-group"><label class="form-label">Date</label><input class="form-control" type="date" value="2026-04-16"/></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Category</label><select class="form-control"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Health</option><option>Entertainment</option></select></div>
-      <div class="form-group"><label class="form-label">Payment Method</label><select class="form-control"><option>Card</option><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Wallet</option></select></div>
-    </div>
-    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-control" rows="2" placeholder="Optional notes..."></textarea></div>
-    <div class="form-group"><label class="form-label">Receipt Attachment</label><input class="form-control" type="file" accept="image/*,.pdf"/></div>
-    <div class="form-group" style="display:flex;align-items:center;gap:8px">
-      <input type="checkbox" id="isRecurring"/>
-      <label for="isRecurring" style="font-size:13.5px;cursor:pointer">Mark as recurring transaction</label>
-    </div>
-    <div class="form-actions">
-      <button class="btn btn-outline" (click)="modal.close()">Cancel</button>
-      <button class="btn btn-primary" (click)="modal.close()">Add Expense</button>
-    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Upcoming Recurring</span></div><div class="card-body">@for (item of recurringItems; track item.recurringId) {<div class="upcoming-item"><span>{{ item.title }}</span><span style="color:var(--text-muted);font-size:12px">{{ (item.nextDueDate || item.startDate) | date:'MMM d' }}</span><span class="amount" [class.expense]="item.type === 'EXPENSE'" [class.income]="item.type === 'INCOME'" style="font-family:'Space Grotesk',sans-serif;font-weight:600">{{ item.type === 'EXPENSE' ? '-' : '+' }}{{ formatAmount(item.amount) }}</span></div>} @if (!recurringItems.length) {<div style="color:var(--text-muted)">No recurring schedules found.</div>}</div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Forecast & Health</span></div><div class="card-body"><div style="background:var(--primary-light);border-radius:10px;padding:14px;margin-bottom:16px"><div style="font-size:12px;color:var(--primary-dark);font-weight:500;margin-bottom:4px">Next Month Forecast</div><div style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:var(--primary-dark)">{{ formatAmount(forecast || 0) }}</div><div style="font-size:12px;color:var(--primary-dark);opacity:.7">Based on last three months expenses</div></div><div class="fh-row"><span class="fh-label">Savings Rate</span><span class="fh-score" style="color:var(--primary-dark)">{{ savingsRate | number:'1.1-1' }}%</span></div><div class="fh-row"><span class="fh-label">Budget Adherence</span><span class="fh-score" style="color:var(--warn)">{{ budgetAdherence | number:'1.0-0' }}%</span></div><div class="fh-row"><span class="fh-label">Expense/Income Ratio</span><span class="fh-score" style="color:var(--primary-dark)">{{ expenseIncomeRatio | number:'1.2-2' }}</span></div><div class="fh-row"><span class="fh-label">Overall Health Score</span><span class="fh-score" style="color:var(--purple);font-size:16px">{{ healthScore }}/100</span></div></div></div>
   </div>
 </div>

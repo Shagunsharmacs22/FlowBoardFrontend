@@ -1,24 +1,35 @@
 <div class="page-content-inner">
   <div class="page-top">
     <div><h1>Categories</h1><p>Organize your transactions with custom categories</p></div>
-    <button class="btn btn-primary" (click)="modal.open('addCategory')">+ Add Category</button>
+    <button class="btn btn-primary" (click)="openCreate()">+ Add Category</button>
   </div>
+
+  @if (errorMessage) {
+    <div class="card" style="padding:14px;color:var(--danger)">{{ errorMessage }}</div>
+  }
 
   <div class="grid-2">
     <div class="card">
       <div class="card-header"><span class="card-title">Expense Categories</span></div>
       <div class="card-body" style="padding:0">
-        <table class="data-table">
-          <thead><tr><th>Category</th><th>Transactions</th><th>Budget Limit</th><th>This Month</th><th></th></tr></thead>
-          <tbody>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#1D9E75"></span>🍔 Food</span></td><td style="color:var(--text-muted)">24</td><td style="font-family:'Space Grotesk';font-size:13px">$500</td><td class="amount expense">$420</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#378ADD"></span>🚗 Transport</span></td><td style="color:var(--text-muted)">15</td><td style="font-family:'Space Grotesk';font-size:13px">$300</td><td class="amount expense">$180</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#D4537E"></span>🛍️ Shopping</span></td><td style="color:var(--text-muted)">18</td><td style="font-family:'Space Grotesk';font-size:13px">$600</td><td class="amount expense" style="color:var(--danger)">$680</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#EF9F27"></span>💡 Bills</span></td><td style="color:var(--text-muted)">8</td><td style="font-family:'Space Grotesk';font-size:13px">$800</td><td class="amount expense">$730</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#7F77DD"></span>💊 Health</span></td><td style="color:var(--text-muted)">6</td><td style="font-family:'Space Grotesk';font-size:13px">$200</td><td class="amount expense">$95</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#888780"></span>🎬 Entertainment</span></td><td style="color:var(--text-muted)">10</td><td style="font-family:'Space Grotesk';font-size:13px">$150</td><td class="amount expense" style="color:var(--warn)">$142</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-          </tbody>
-        </table>
+        @if (loading) {
+          <div style="padding:20px;color:var(--text-muted)">Loading categories...</div>
+        } @else {
+          <table class="data-table">
+            <thead><tr><th>Category</th><th>Transactions</th><th>Budget Limit</th><th>This Month</th><th></th></tr></thead>
+            <tbody>
+              @for (category of expenseCategories; track category.categoryId) {
+                <tr>
+                  <td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" [style.background]="category.colorCode || '#1D9E75'"></span>{{ category.icon || '?' }} {{ category.name }}</span></td>
+                  <td style="color:var(--text-muted)">{{ transactionCount(category) }}</td>
+                  <td style="font-family:'Space Grotesk';font-size:13px">{{ formatAmount(category.budgetLimit || 0) }}</td>
+                  <td class="amount expense">{{ formatAmount(currentMonthTotal(category)) }}</td>
+                  <td><button class="btn btn-outline btn-sm" (click)="openEdit(category)">Edit</button> <button class="btn btn-danger btn-sm" (click)="removeCategory(category)">Delete</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
       </div>
     </div>
     <div class="card">
@@ -27,9 +38,14 @@
         <table class="data-table">
           <thead><tr><th>Category</th><th>Transactions</th><th>This Month</th><th></th></tr></thead>
           <tbody>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#1D9E75"></span>💼 Salary</span></td><td style="color:var(--text-muted)">1</td><td class="amount income">$5,500</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#378ADD"></span>💻 Freelance</span></td><td style="color:var(--text-muted)">2</td><td class="amount income">$2,570</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" style="background:#7F77DD"></span>📈 Investments</span></td><td style="color:var(--text-muted)">1</td><td class="amount income">$380</td><td><button class="btn btn-outline btn-sm">Edit</button></td></tr>
+            @for (category of incomeCategories; track category.categoryId) {
+              <tr>
+                <td><span style="display:flex;align-items:center;gap:8px"><span class="cat-dot" [style.background]="category.colorCode || '#1D9E75'"></span>{{ category.icon || '?' }} {{ category.name }}</span></td>
+                <td style="color:var(--text-muted)">{{ transactionCount(category) }}</td>
+                <td class="amount income">{{ formatAmount(currentMonthTotal(category)) }}</td>
+                <td><button class="btn btn-outline btn-sm" (click)="openEdit(category)">Edit</button> <button class="btn btn-danger btn-sm" (click)="removeCategory(category)">Delete</button></td>
+              </tr>
+            }
           </tbody>
         </table>
       </div>
@@ -37,22 +53,21 @@
   </div>
 </div>
 
-<!-- Add Category Modal -->
 <div class="modal-overlay" [class.open]="modal.isOpen('addCategory')" (click)="modal.close()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header"><span class="modal-title">Add Category</span><button class="modal-close" (click)="modal.close()">✕</button></div>
-    <div class="form-group"><label class="form-label">Category Name</label><input class="form-control" placeholder="e.g. Dining Out"/></div>
+    <div class="modal-header"><span class="modal-title">{{ editingCategoryId ? 'Edit Category' : 'Add Category' }}</span><button class="modal-close" (click)="modal.close()">x</button></div>
+    <div class="form-group"><label class="form-label">Category Name</label><input class="form-control" [(ngModel)]="form.name" placeholder="e.g. Dining Out" /></div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Type</label><select class="form-control"><option>Expense</option><option>Income</option></select></div>
-      <div class="form-group"><label class="form-label">Icon (emoji)</label><input class="form-control" placeholder="e.g. 🍕"/></div>
+      <div class="form-group"><label class="form-label">Type</label><select class="form-control" [(ngModel)]="form.type"><option value="EXPENSE">Expense</option><option value="INCOME">Income</option></select></div>
+      <div class="form-group"><label class="form-label">Icon</label><input class="form-control" [(ngModel)]="form.icon" placeholder="e.g. Food" /></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label class="form-label">Color</label><input class="form-control" type="color" value="#1D9E75"/></div>
-      <div class="form-group"><label class="form-label">Monthly Budget Limit ($)</label><input class="form-control" type="number" placeholder="Leave blank for no limit"/></div>
+      <div class="form-group"><label class="form-label">Color</label><input class="form-control" [(ngModel)]="form.colorCode" type="color" /></div>
+      <div class="form-group"><label class="form-label">Monthly Budget Limit</label><input class="form-control" [(ngModel)]="form.budgetLimit" type="number" placeholder="0" /></div>
     </div>
     <div class="form-actions">
       <button class="btn btn-outline" (click)="modal.close()">Cancel</button>
-      <button class="btn btn-primary" (click)="modal.close()">Create Category</button>
+      <button class="btn btn-primary" (click)="saveCategory()" [disabled]="saving">{{ saving ? 'Saving...' : (editingCategoryId ? 'Update Category' : 'Create Category') }}</button>
     </div>
   </div>
 </div>
